@@ -1,0 +1,60 @@
+---
+title: "Introduction"
+output: html_document
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+This vigentte will get you started extracting actively-flowing river networks from remotely sensed imagery!
+
+# Preprocessing
+`SARNr` assumes you have the following data prepared:
+
+- Binary water classification of a remote sensing image
+- Vectorized version of this binary water classification image.
+- DEM river network of equivalent (or better) resolution to your remotely sensed image(s)
+
+There is an included function to classify water using Rosin's unimodal threshold + a elevation cutoff (`{r, eval=FALSE} sarn_classifyWater()`) that can be used to generate the RS water mask. To generate the vectorized version of this mask, the easiest method is to thin the RS water mask using GRASS GIS r.thin function and then convert it to vector. This requires you to have GRASS GIS installed but it is the easiest way.
+
+One can also generate their DEM river network in GRASS GIS, or any other GIS really (though to my knowledge there is no easy way to do this in R currently). This needs to only be done once. The general workflow is the following:
+
+- Fill sinks
+- Generate flow directions
+- Generate flow accumulation grid
+- Set channelization threshold and create binary river network
+- Convert this raster river network to vector
+
+# Workflow
+Below is an example code for generating an actively flowing drainage network given a DEM river network and an RS river network. The example uses a Planet 3m image from 10/09/2020 in the Nepalese Himalaya.
+
+Load in the required packages
+```{r setup, eval=FALSE}
+#library(SARNr)
+library(sf) #for vector processing
+library(terra) #for raster processing
+```
+
+Load in the necessary data
+```{r, eval=FALSE}
+#load in data
+rivnet_dem <- st_read('data/DEM_rivnet_33333_20201009_045732_0f17.shp')
+rivnet_rs <- st_read('data/3m_centerlines_fin_20201009_045732_0f17.shp')
+rivnet_rs_rast <- rast('data/3m_centerlines_fin_20201009_045732_0f17.tif')
+dem <- rast('data/dem_fin_20201009_045732_0f17.tif')
+```
+
+Run the algorithm
+``` {r, eval=FALSE}
+#run SARNr
+data <- sarn_data(rivnet_dem, rivnet_rs, rivnet_rs_rast) #create SARN object
+joinedNetwork <- sarn_joinNetworks(data, 5) #join DEM and RS networks
+trimmedNetwork <- sarn_trimNetworks(joinedNetwork) #trim combined DEM/RS network
+fin <- sarn_hydrography(trimmedNetwork$trimmedNetwork, dem, data$rs_raster) #build hydrography
+
+#save river network to file
+st_write(fin, 'debug/hydrography.shp', delete_dsn = TRUE)
+```

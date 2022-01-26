@@ -1,0 +1,30 @@
+Package: SARNr
+Type: Package
+Title: SARN algorithm in R for any resolution imagery
+Version: 1.0
+Date: 2022-01-23
+Authors@R: 
+    person(given = "Craig",
+           family = "Brinkerhoff",
+           role = c("aut", "cre"),
+           email = "cbrinkerhoff@umass.edu",
+           comment = c(ORCID = "0000-0001-6701-4835"))
+Description: An adapted version of the SARN algorithm, written in an open-source language and setup for any resolution imagery
+Depends: 
+    R (>= 3.6.0),
+Imports:
+    dplyr,
+    hydrostreamer,
+    sf,
+    sfnetworks,
+    terra,
+    tidygraph
+License: file LICENSE
+Encoding: UTF-8
+URL: https://github.com/craigbrinkerhoff/SARNr
+BugReports: https://github.com/craigbrinkerhoff/SARNr/issues
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+RoxygenNote: 7.1.1

@@ -1,0 +1,78 @@
+# ERROR HANDLING AND OBJECT GENERATION FUNCTIONS
+# Winter 2022
+
+#' Produce SARNr object
+#'
+#' Produces an SARNr object to use to run the actual algorithm
+#' 
+#' @param dem_network: DEM-generated river network as a shapefile
+#' @param rs_network: Remotely-sensed river network as a shapefile
+#' @param rs_raster: River classification raster
+sarn_data <- function(dem_network, rs_network, rs_raster) {
+  
+  #ensure all shapefiles are sf objects
+ # checkShp(dem_network)
+#  checkShp(rs_network)
+  
+  #ensure dem is a terra raster
+ # checkRast(rs_raster)
+  
+#  checkCat(dem_network)
+#  checkCat(rs_network)
+  
+  #make sure all inputs are in the same projection
+ # checkProj(dem_network, rs_network, rs_raster)
+  
+  #produce sarn object
+  datalist <- list(dem_network = dem_network,
+                   rs_network = rs_network,
+                   rs_raster = rs_raster)
+  
+  out <- structure(c(datalist),
+                   class = c("sarndata"))
+  return(out)
+}
+
+#' Check shapefile object type
+#' 
+#' Ensures that shapefiles are sf objects
+#' 
+#' @param shapefile: shapefile to be used in SARNr
+checkShp <- function(shapefile) {
+  if(class(shapefile)[1] != 'sf'){
+    stop("All shapefiles must be sf objects!")
+  }
+}
+
+#' Check raster object type
+#' 
+#' Ensures that rasters are terra objects
+#' 
+#' @param raster: raster to be used in SARNr
+checkRast <- function(raster) {
+  if(class(raster)[1] != 'SpatRaster'){
+    stop("All rasters must be Terra objects!")
+  }
+}
+
+#' Network ID column chekc
+#' 
+#' Ensures the shapefile ID column is named 'cat'. If it doesnt exist, create one
+checkCat <- function(shapefile) {
+  if("cat" %notin% colnames(shapefile)) {
+    shapefile$cat <- 1:nrow(chapefile)
+  }
+}
+
+#' Check input data projection
+#' 
+#' Ensures raster and vector river networks are in the same projection
+checkProj <- function(dem_network, rs_network, rs_raster){
+  dem <- as.character(crs(dem_network))
+  rs <- as.character(crs(rs_network))
+  rast <- crs(rs_raster, proj=TRUE)
+  
+  if(dem != rast & rast != rs & rs != dem){
+    stop('All inputs must be in the same projection!!')
+  }
+}
