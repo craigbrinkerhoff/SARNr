@@ -9,12 +9,7 @@
 #' @param y: overlaying layer that defines the 'erase zones'
 #' 
 #' @import sf
-st_erase = function(x, y) {
-  st_difference(
-    st_geometry(x) %>% st_buffer(0), 
-    st_union(st_combine(st_geometry(y))) %>% st_buffer(0)
-  )
-}
+st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
 
 #' "not in" function
 `%notin%` <- Negate(`%in%`)
@@ -26,8 +21,6 @@ st_erase = function(x, y) {
 #' @param img: Multi-band RS image to be classified. Required band names are 'green', 'nir', and 'red'.
 #' @param dem: DEM for elevation cutoff of same resolution as RS image
 #' @param maxElev: Maximum elevation for water (in meters). Default=4000
-#' 
-#' @import terra
 #' 
 #' @return Binary river classification: 1 is water, 0 is land
 #' 
@@ -64,6 +57,8 @@ sarn_classifyWater_unimodal <- function(img, dem, maxElev=4000) {
   #REMOVE HIGH-ELEVATIONS
   dem <- dem <= maxElev
   img_fin <- img_fin * dem
+  
+  img_fin[img_fin == 0] <- NA
   
   return(img_fin)
 }

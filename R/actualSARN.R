@@ -38,7 +38,6 @@ sarn_joinNetworks <- function(data, bufferSize) {
   rivnet_combo <- st_make_valid(rivnet_combo) #repair geometries
   
   #GET 'COINCIDENT NETWORK': DEM WITH A CORRESPONDING RS RIVER
-  #currently using un-snapped network as the other way makes no sense? In my view, the snapping aids in making a connected raster network but is less useful here for smooth, realistic river networks
   coincident_network <- st_intersection(rivnet_combo, data$dem_network)
   coincident_network <- st_collection_extract(coincident_network, "LINESTRING") #can sometimes return points if line only intersects polygon at a point, so we just remove those
   coincident_network <- select(coincident_network, c('cat', 'geometry'))
