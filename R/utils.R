@@ -23,6 +23,10 @@ st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
 #' @param img: Multi-band RS image to be classified. Required band names are 'green', 'nir', and 'red'
 #' @param dem: DEM for elevation cutoff of same resolution as RS image
 #' @param maxElev: Maximum elevation to allow water to exist in meters. Use to avoid ice/snow/glaciers
+#' 
+#' @return Binary river classification: 1 is water, 0 is land
+#' 
+#' @export sarn_classifyWater_unimodal
 sarn_classifyWater_unimodal <- function(img, dem, maxElev=4000) {
   #CALCULATE SPECTRAL INDEX (NDWI - NDVI following https://doi.org/10.3390/s18082580)
   values <- ((img$green - img$nir)/(img$green + img$nir)) - ((img$nir - img$red)/(img$nir + img$red))

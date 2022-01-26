@@ -13,7 +13,9 @@
 #' @import terra
 #' @import sf
 #' 
-#' @returns sarnnetwork object with two vector river networks: network where DEM and RS are overlapping ('coincident') and not overlapping ('non-coincident')
+#' @return sarnnetwork object with two vector river networks: network where DEM and RS are overlapping ('coincident') and not overlapping ('non-coincident')
+#' 
+#' @export sarn_joinNetworks
 sarn_joinNetworks <- function(data, bufferSize) {
   print("Joining DEM and RS networks...")
   
@@ -73,7 +75,9 @@ sarn_joinNetworks <- function(data, bufferSize) {
 #' @import sf
 #' @import dplyr
 #' 
-#' @returns sarnnetwork object containing shapefile of the trimmed river network ('trimmedNetwork') representing the actively-flowing hydrography, as well as the original coincident and non-coincident networks
+#' @return sarnnetwork object containing shapefile of the trimmed river network ('trimmedNetwork') representing the actively-flowing hydrography, as well as the original coincident and non-coincident networks
+#'
+#' @export sarn_trimNetworks
 sarn_trimNetworks <- function(networks, printOutput="Yes") {
   print('Giving the river network a much needed hair cut!!')
   

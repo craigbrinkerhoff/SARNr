@@ -13,6 +13,9 @@ sarn_data(dem_network, riverMask, dem)
 
 \item{dem:}{Digital elevation model that generated the dem_network}
 }
+\value{
+sarndata object
+}
 \description{
 Produces an SARNr object to use to run the actual algorithm
 }

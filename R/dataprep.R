@@ -8,6 +8,10 @@
 #' @param dem_network: DEM-generated river network as a shapefile
 #' @param riverMask: River classification raster
 #' @param dem: Digital elevation model that generated the dem_network
+#' 
+#' @return sarndata object
+#' 
+#' @export sarn_data
 sarn_data <- function(dem_network, riverMask, dem) {
   
   #ensure all shapefiles are sf objects

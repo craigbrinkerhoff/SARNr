@@ -13,6 +13,9 @@ sarn_classifyWater_unimodal(img, dem, maxElev = 4000)
 
 \item{maxElev:}{Maximum elevation to allow water to exist in meters. Use to avoid ice/snow/glaciers}
 }
+\value{
+Binary river classification: 1 is water, 0 is land
+}
 \description{
 Classifies a multi-band image into water/not water using Rosin's unimodal thresholding algorithm + an elevation cutoff.
 }

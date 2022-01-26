@@ -20,7 +20,9 @@
 #' @import tidygraph
 #' @import hydrostreamer
 #'
-#' @returns final hydrography product representing the actively-flowing river network with 1) a routing table, 2) reach slope, 3) stream order, and 4) reach length
+#' @return final hydrography product representing the actively-flowing river network with 1) a routing table, 2) reach slope, 3) stream order, and 4) reach length
+#' 
+#' @export sarn_hydrography
 sarn_hydrography <- function(trimmedNetwork, dem, riverMask, lengthThresh, printOutput='Yes') {
   
   printOutput <- ifelse(printOutput == 'yes' || printOutput == 'Yes', 1, 0)
