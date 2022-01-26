@@ -11,9 +11,6 @@ st_erase(x, y)
 
 \item{y:}{overlaying layer that defines the 'erase zones'}
 }
-\value{
-x with overlapping objects erase
-}
 \description{
 Homebaked sf function to mimic the Erase tool in ArcGIS
 }

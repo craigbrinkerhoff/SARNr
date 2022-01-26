@@ -2,10 +2,10 @@
 % Please edit documentation in R/dataprep.R
 \name{checkCat}
 \alias{checkCat}
-\title{Network ID column chekc}
+\title{Network ID column check}
 \usage{
 checkCat(shapefile)
 }
 \description{
-Ensures the shapefile ID column is named 'cat'. If it doesnt exist, create one
+Ensures the shapefile ID column is named 'cat'. If it does not exist, create one
 }

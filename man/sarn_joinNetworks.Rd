@@ -12,8 +12,8 @@ sarn_joinNetworks(data, bufferSize)
 \item{bufferSize:}{Lateral buffer distance for joining river networks (meters)}
 }
 \value{
-sarnnetwork object with two vector river networks: network where DEM and RS are overlapping ('coincident') and not overlapping ('non-coincident')
+sarnnetwork object with two vector river networks: DEM/RS 'coincident' rivers and DEM/RS 'not coincident' rivers
 }
 \description{
-Joins DEM and RS river networks into a single vector product
+Joins DEM and RS river networks
 }

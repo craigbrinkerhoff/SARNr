@@ -7,5 +7,5 @@
 checkProj(dem_network, rs_raster, dem_full)
 }
 \description{
-Ensures raster and vector river networks are in the same projection
+Ensures raster and vector input data are all in the same projection
 }

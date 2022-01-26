@@ -7,11 +7,11 @@
 sarn_classifyWater_unimodal(img, dem, maxElev = 4000)
 }
 \arguments{
-\item{img:}{Multi-band RS image to be classified. Required band names are 'green', 'nir', and 'red'}
+\item{img:}{Multi-band RS image to be classified. Required band names are 'green', 'nir', and 'red'.}
 
 \item{dem:}{DEM for elevation cutoff of same resolution as RS image}
 
-\item{maxElev:}{Maximum elevation to allow water to exist in meters. Use to avoid ice/snow/glaciers}
+\item{maxElev:}{Maximum elevation for water (in meters). Default=4000}
 }
 \value{
 Binary river classification: 1 is water, 0 is land

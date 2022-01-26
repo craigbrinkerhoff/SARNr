@@ -7,13 +7,13 @@
 sarn_trimNetworks(networks, printOutput = "Yes")
 }
 \arguments{
-\item{networks:}{sarnnetwork object composed of coincident (variable type=1) and non-coincident (variable type=2) river networks}
+\item{networks:}{sarnnetwork object produced by sarn_joinNetworks()}
 
 \item{printOutput:}{Do you want the results of the iterative trimming to print to console? Default= Yes}
 }
 \value{
-sarnnetwork object containing shapefile of the trimmed river network ('trimmedNetwork') representing the actively-flowing hydrography, as well as the original coincident and non-coincident networks
+sarnnetwork object with trimmed river network (output$trimmedNetwork)
 }
 \description{
-Iteratively trims river network until all emergent streams are remotely sensed and all 'DEM-only' upstream dangles have been removed. The resulting river network represents the 'actively flowing' hydrography of the image
+Iteratively trims river network to the actively-flowing network
 }

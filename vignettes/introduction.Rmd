@@ -37,9 +37,8 @@ Load in the necessary data
 ```R
 #load in data
 rivnet_dem <- st_read('data/DEM_rivnet_33333_20201009_045732_0f17.shp') #DEM river networks
-#rivnet_rs_rast <- rast('data/3m_centerlines_fin_20201009_045732_0f17.tif') #river classification already done
 dem_domain <- rast('data/dem_fin_20201009_045732_0f17.tif') #dem downscaled to 3m
-image <- rast('data/PSScene4Band-20201009_045732_0f17.tif) #3m PlanetScope image
+image <- rast('data/PSScene4Band-20201009_045732_0f17.tif') #3m PlanetScope image
 ```
 
 Classify water within your image. You can do this using bespoke methods or one of the two functions included here (see below). Here we use NDWI-NDVI to force as much spectral contrast between land and water as possible following  https://doi.org/10.3390/s18082580.

@@ -2,7 +2,7 @@
 % Please edit documentation in R/hydrography.R
 \name{sarn_hydrography}
 \alias{sarn_hydrography}
-\title{Builds usable hydrography from SARN}
+\title{Builds actively flowing hydrography from SARN}
 \usage{
 sarn_hydrography(
   trimmedNetwork,
@@ -24,8 +24,8 @@ sarn_hydrography(
 \item{printOutput:}{Do you want the results of the iterative trimming to print to console? Default= Yes}
 }
 \value{
-final hydrography product representing the actively-flowing river network with 1) a routing table, 2) reach slope, 3) stream order, and 4) reach length
+final actively-flowing hydrography
 }
 \description{
-Builds a routing framework and calculates common river network parameters from the SARN output. Note this this creates a temp file to convert between sf and terra vector objects...
+Builds a routing framework and calculates common river network parameters for the river network.
 }

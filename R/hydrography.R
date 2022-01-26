@@ -4,9 +4,9 @@
 
 
 
-#' Builds usable hydrography from SARN
+#' Builds actively flowing hydrography from SARN
 #' 
-#' Builds a routing framework and calculates common river network parameters from the SARN output. Note this this creates a temp file to convert between sf and terra vector objects...
+#' Builds a routing framework and calculates common river network parameters for the river network.
 #' 
 #' @param trimmedNetwork: SARNr-trimmed river network. This would be the $trimmedNetwork output from the sarn_trimNetwork() output
 #' @param dem: Digital elevation model that was used to generate the DEM river network
@@ -20,7 +20,7 @@
 #' @import tidygraph
 #' @import hydrostreamer
 #'
-#' @return final hydrography product representing the actively-flowing river network with 1) a routing table, 2) reach slope, 3) stream order, and 4) reach length
+#' @return final actively-flowing hydrography
 #' 
 #' @export sarn_hydrography
 sarn_hydrography <- function(trimmedNetwork, dem, riverMask, lengthThresh, printOutput='Yes') {

@@ -1,13 +1,13 @@
 # ERROR HANDLING AND OBJECT GENERATION FUNCTIONS
 # Winter 2022
 
-#' Produce SARNr object
+#' Make sarndata object
 #'
-#' Produces an SARNr object to use to run the actual algorithm
+#' Make a sarndata object to run the actual algorithm on
 #' 
-#' @param dem_network: DEM-generated river network as a shapefile
+#' @param dem_network: DEM-generated river network (shapefile)
 #' @param riverMask: River classification raster
-#' @param dem: Digital elevation model that generated the dem_network
+#' @param dem: Digital elevation model that generated dem_network
 #' 
 #' @return sarndata object
 #' 
@@ -59,9 +59,9 @@ checkRast <- function(raster) {
   }
 }
 
-#' Network ID column chekc
+#' Network ID column check
 #' 
-#' Ensures the shapefile ID column is named 'cat'. If it doesnt exist, create one
+#' Ensures the shapefile ID column is named 'cat'. If it does not exist, create one
 checkCat <- function(shapefile) {
   if("cat" %notin% colnames(shapefile)) {
     shapefile$cat <- 1:nrow(chapefile)
@@ -70,7 +70,7 @@ checkCat <- function(shapefile) {
 
 #' Check input data projection
 #' 
-#' Ensures raster and vector river networks are in the same projection
+#' Ensures raster and vector input data are all in the same projection
 checkProj <- function(dem_network, rs_raster, dem_full){
   dem <- as.character(crs(dem_network))
   rast <- crs(rs_raster, proj=TRUE)
@@ -78,5 +78,16 @@ checkProj <- function(dem_network, rs_raster, dem_full){
   
   if(dem != rast || dem != rast_dem || rast != rast_dem){
     stop('All inputs must be in the same projection!!')
+  }
+}
+
+#' Check RS band names
+#' 
+#' Ensures that band names are correct before calculating spectral indices
+checkRS <- function(img){
+  bandNames <- names(img)
+  
+  if(any(bandNames %notin% c('blue', 'red', 'green', 'nir'))) {
+    stop('Bands must be named blue, red, green, and nir!! The order does not matter, just the names')
   }
 }
