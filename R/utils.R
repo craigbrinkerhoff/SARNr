@@ -9,7 +9,12 @@
 #' @param y: overlaying layer that defines the 'erase zones'
 #' 
 #' @import sf
-st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
+st_erase = function(x, y) {
+  st_difference(
+    st_geometry(x) %>% st_buffer(0), 
+    st_union(st_combine(st_geometry(y))) %>% st_buffer(0)
+  )
+}
 
 #' "not in" function
 `%notin%` <- Negate(`%in%`)
@@ -21,6 +26,8 @@ st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
 #' @param img: Multi-band RS image to be classified. Required band names are 'green', 'nir', and 'red'.
 #' @param dem: DEM for elevation cutoff of same resolution as RS image
 #' @param maxElev: Maximum elevation for water (in meters). Default=4000
+#' 
+#' @import terra
 #' 
 #' @return Binary river classification: 1 is water, 0 is land
 #' 

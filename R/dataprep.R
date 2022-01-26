@@ -71,6 +71,9 @@ checkCat <- function(shapefile) {
 #' Check input data projection
 #' 
 #' Ensures raster and vector input data are all in the same projection
+#' 
+#' @import raster
+#' @import terra
 checkProj <- function(dem_network, rs_raster, dem_full){
   dem <- as.character(crs(dem_network))
   rast <- crs(rs_raster, proj=TRUE)

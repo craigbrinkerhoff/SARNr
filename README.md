@@ -21,5 +21,7 @@ Sys.setenv(TAR = "/bin/tar") #if using a Linux machine (apparently)...
 devtools::install_github("craigbrinkerhoff/SARNr", ref='main', force=TRUE)
 ```
 
+Note that the `terra` package auto loades `sp` and `raster` libraries into the namespace. Depending on your setup, you might need to manually specify these.
+
 ## To use
 See the Introduction vignette at `/docs/introduction.html`.
