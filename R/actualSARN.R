@@ -32,6 +32,9 @@ sarn_joinNetworks <- function(data, bufferSize) {
   rivnet_dem_buf_rast <- rast(extent = ext(data$riverMask), crs = crs(v), resolution=res(data$riverMask)) #use extent from RS network
   rivnet_dem_buf_rast <- rasterize(x=v, y=rivnet_dem_buf_rast)
   rivnet_combo_rast <- (rivnet_dem_buf_rast+1) + data$riverMask #3 equals dem+rs synonymous rivers
+  
+  #only keep coincident pixels
+  rivnet_combo_rast[rivnet_combo_rast<3] <- NA
 
   rivnet_combo <- as.polygons(rivnet_combo_rast)
   rivnet_combo <- st_as_sf(rivnet_combo) #back to SF...
