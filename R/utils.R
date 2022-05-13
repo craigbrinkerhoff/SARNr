@@ -8,8 +8,14 @@
 #' @param  x: layer to erase things away from
 #' @param y: overlaying layer that defines the 'erase zones'
 #' 
+#' @name st_erase
+
 #' @import sf
-st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
+#' 
+#' @return result of erase function
+st_erase = function(x, y){
+  return(st_difference(x, st_union(st_combine(y))))
+}
 
 #' "not in" function
 `%notin%` <- Negate(`%in%`)
@@ -17,6 +23,8 @@ st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
 #' Classifies water
 #' 
 #' Classifies a multi-band image into water/not water using Rosin's unimodal thresholding algorithm + an elevation cutoff.
+#' 
+#' @name sarn_classifyWater_unimodal
 #' 
 #' @param img: Multi-band RS image to be classified. Required band names are 'green', 'nir', and 'red'.
 #' @param dem: DEM for elevation cutoff of same resolution as RS image
@@ -61,15 +69,4 @@ sarn_classifyWater_unimodal <- function(img, dem, maxElev=4000) {
   img_fin[img_fin == 0] <- NA
   
   return(img_fin)
-}
-
-#' Classifies water
-#' 
-#' Classifies a multi-band image into water/not water using Otsu's bimodal thresholding algorithm + an elevation cutoff.
-#' 
-#' @param img: Multi-band RS image to be classified. Required band names are 'green', 'nir', and 'red'
-#' @param dem: DEM for elevation cutoff of same resolution as RS image
-#' @param maxElev: Maximum elevation to allow water to exist in meters. Use to avoid ice/snow/glaciers
-sarn_classifyWater_bimodal <- function(img, dem, maxElev=4000) {
-  print('get from guthub again')
 }

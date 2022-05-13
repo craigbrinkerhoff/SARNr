@@ -17,5 +17,5 @@ sarn_data(dem_network, riverMask, dem)
 sarndata object
 }
 \description{
-Make a sarndata object to run the actual algorithm on
+Make a sarndata object to run the actual algorithm on. Checks input data projections and formats too.
 }

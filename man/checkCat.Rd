@@ -6,6 +6,12 @@
 \usage{
 checkCat(shapefile)
 }
+\arguments{
+\item{cheapefile:}{shapefile to be used in SARNr}
+}
+\value{
+null
+}
 \description{
 Ensures the shapefile ID column is named 'cat'. If it does not exist, create one
 }

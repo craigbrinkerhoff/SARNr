@@ -6,6 +6,9 @@
 \usage{
 checkRS(img)
 }
+\arguments{
+\item{img:}{remote sensing image to be used in SARNr}
+}
 \description{
 Ensures that band names are correct before calculating spectral indices
 }

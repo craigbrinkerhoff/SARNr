@@ -1,19 +1,30 @@
 ---
-title: "Introduction"
-output: html_document
+title: "introduction"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{introduction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, include = FALSE}
-knitr::opts_chunk$set(collapse = TRUE,comment = "#>")
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
 ```
 
-This vigentte will get you started extracting actively-flowing river networks from remotely sensed imagery!
+```{r setup}
+library(SARNr)
+```
+
+This vigentte will get you started extracting actively-flowing river networks from Planet imagery!
 
 # Preprocessing
 `SARNr` assumes you have the following data prepared:
 
 - Multi-band remote sensing image with at least the following bands: green, red, and nir. We developed `SARNr` around Planet imagery and so these bands are the bare minimum, though other sensors can be used to calculate other spectral indices for river classification.
-- DEM river network of equivalent (or better) resolution to your remotely sensed image(s). This resolution requirement is important!
+- DEM river network of equivalent (or better) resolution to your remotely sensed image(s). This resolution requirement is important to faciliate raster algebra!
 
 One can also generate their DEM river network in a GIS: to my knowledge there is no easy way to do this in R currently. This needs to only be done once. The general workflow is the following (there are tons of tutorials online for doing this in ArcGIS, QGIS, GRASS, etc.)
 
@@ -41,19 +52,15 @@ dem_domain <- rast('data/dem_fin_20201009_045732_0f17.tif') #dem downscaled to 3
 image <- rast('data/PSScene4Band-20201009_045732_0f17.tif') #3m PlanetScope image
 ```
 
-Classify water within your image. You can do this using bespoke methods or one of the two functions included here (see below). Here we use NDWI-NDVI to force as much spectral contrast between land and water as possible following  https://doi.org/10.3390/s18082580.
+Classify water within your image. You can do this using bespoke methods or one the function included here (see below). Here we use NDWI-NDVI to force as much spectral contrast between land and water as possible following  https://doi.org/10.3390/s18082580.
 
 ```R
 #Rosgen's Unimodal thresholding approach applied to the spectral index (NDWI-NDVI)
 rivnet_rs_rast <- sarn_classifyWater_unimodal(img = image,
                                      dem = dem_domain,
                                      maxElev = 4000) #water is ignored above this elevation (to remove snow/ice/glaciers)
-
-#Otsu's bimodal thresholding approach applied to the spectral indec (NDWI-NDVI)
-rivnet_rs_rast <- sarn_classifyWater_bimodal(img = image,
-                                     dem = dem_domain,
-                                     maxElev = 4000) #water is ignored above this elevation (to remove snow/ice/glaciers)
 ```
+If you are going to make your own river masks, simply make sure the output is a `terra::spatRaster` object with river pixels coded as 1s and land pixels as NaN.
 
 Run the algorithm
 ```R

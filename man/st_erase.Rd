@@ -11,6 +11,9 @@ st_erase(x, y)
 
 \item{y:}{overlaying layer that defines the 'erase zones'}
 }
+\value{
+result of erase function
+}
 \description{
 Homebaked sf function to mimic the Erase tool in ArcGIS
 }

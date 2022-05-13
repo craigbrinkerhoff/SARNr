@@ -43,14 +43,14 @@ sarn_joinNetworks <- function(data, bufferSize) {
   #GET 'COINCIDENT NETWORK': DEM WITH A CORRESPONDING RS RIVER
   coincident_network <- st_intersection(rivnet_combo, data$dem_network)
   coincident_network <- st_collection_extract(coincident_network, "LINESTRING") #can sometimes return points if line only intersects polygon at a point, so we just remove those
-  coincident_network <- select(coincident_network, c('cat', 'geometry'))
+  coincident_network <- dplyr::select(coincident_network, c('cat', 'geometry'))
   colnames(coincident_network) <- c('reachID', 'geometry')
   coincident_network <- do.call(rbind,lapply(1:nrow(coincident_network),function(i){st_cast(coincident_network[i,],"LINESTRING")}))
   
   #GET 'NON-COINCIDENT NETWORK': DEM WITH NO CORRESPONDING RS RIVER
   non_coincident_network <- st_erase(data$dem_network, rivnet_combo)
   non_coincident_network <- st_collection_extract(non_coincident_network, "LINESTRING") #can sometimes return points if line only intersects polygon at a point, so we just remove those
-  non_coincident_network <- select(non_coincident_network, c('cat', 'geometry'))
+  non_coincident_network <- dplyr::select(non_coincident_network, c('cat', 'geometry'))
   colnames(non_coincident_network) <- c('reachID', 'geometry')
   non_coincident_network <- do.call(rbind,lapply(1:nrow(non_coincident_network),function(i){st_cast(non_coincident_network[i,],"LINESTRING")}))
   

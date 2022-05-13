@@ -8,6 +8,8 @@
 #' 
 #' Builds a routing framework and calculates common river network parameters for the river network.
 #' 
+#' @name sarn_hydrography
+#' 
 #' @param trimmedNetwork: SARNr-trimmed river network. This would be the $trimmedNetwork output from the sarn_trimNetwork() output
 #' @param dem: Digital elevation model that was used to generate the DEM river network
 #' @param riverMask: river mask raster used to generate the RS river network. This would be $rs_raster from the sarn_data() output
@@ -36,21 +38,21 @@ sarn_hydrography <- function(trimmedNetwork, dem, riverMask, lengthThresh, print
     hydrography_shp <- smoothed %>%
       activate("edges") %>%
       st_as_sf() %>%
-      select(-c('reachID', 'geometry'))
+      dplyr::select(-c('reachID', 'geometry'))
     hydrography_shp$reachID <- 1:nrow(hydrography_shp)
     
     #ADD NUMBER UPSTREAM RIVERS
     nup <- group_by(hydrography_shp, to) %>%
       summarise(nUp=n())
     nup <- as.data.frame(nup)
-    nup <- select(nup, 'to', 'nUp')
+    nup <- dplyr::select(nup, 'to', 'nUp')
     colnames(nup) <- c('from', 'nUp') #re-assign nUp to the next downstream reach
     hydrography_shp <- left_join(hydrography_shp, nup, by='from')
     
     hydrography_shp$length <- as.numeric(st_length(hydrography_shp))
     eraseRivers <- hydrography_shp[hydrography_shp$length < lengthThresh & is.na(hydrography_shp$nUp) ==1 ,]
     trimmedNetwork <- filter(hydrography_shp, reachID %notin% eraseRivers$reachID)
-    trimmedNetwork <- select(trimmedNetwork, c('reachID', 'geometry'))
+    trimmedNetwork <- dplyr::select(trimmedNetwork, c('reachID', 'geometry'))
     
     flag <- nrow(hydrography_shp) - nrow(trimmedNetwork)
     
@@ -63,19 +65,19 @@ sarn_hydrography <- function(trimmedNetwork, dem, riverMask, lengthThresh, print
   so <- river_network(hydrography_shp, riverID = 'reachID')  %>%
     river_hierarchy() %>%
     as.data.frame() %>%
-    select(c('reachID', 'STRAHLER'))
+    dplyr::select(c('reachID', 'STRAHLER'))
   
   hydrography_shp <- left_join(hydrography_shp, so, by='reachID')
   hydrography_shp$length_m <- as.numeric(st_length(hydrography_shp))
   
-  hydrography_shp <- select(hydrography_shp, c('from', 'to', 'reachID', 'STRAHLER', 'length_m', 'geometry'))
+  hydrography_shp <- dplyr::select(hydrography_shp, c('from', 'to', 'reachID', 'STRAHLER', 'length_m', 'geometry'))
   colnames(hydrography_shp) <- c('frmNode', 'toNode', 'rchID', 'strOrdr', 'lngth_m', 'geometry')
   
   #ADD NUMBER UPSTREAM RIVERS
   nup <- group_by(hydrography_shp, toNode) %>%
     summarise(nUp=n())
   nup <- as.data.frame(nup)
-  nup <- select(nup, 'toNode', 'nUp')
+  nup <- dplyr::select(nup, 'toNode', 'nUp')
   colnames(nup) <- c('frmNode', 'nUp') #re-assign nUp to the next downstream reach
   hydrography_shp <- left_join(hydrography_shp, nup, by='frmNode')
   
@@ -94,7 +96,7 @@ sarn_hydrography <- function(trimmedNetwork, dem, riverMask, lengthThresh, print
   colnames(min_elev) <- c('row', 'min_elv_m')
    
   slopes <- left_join(max_elev, min_elev, by='row') %>%
-   select(!c('row'))
+   dplyr::select(!c('row'))
    
   hydrography_shp$slope <- (slopes$max_elv_m - slopes$min_elv_m) / hydrography_shp$lngth_m
    
@@ -102,6 +104,8 @@ sarn_hydrography <- function(trimmedNetwork, dem, riverMask, lengthThresh, print
   perc_RS <- extract(riverMask, hydrography_terra, fun=function(x){mean(x, na.rm=T)}) #average of binary pixels will give a 'percent RS'
   colnames(perc_RS) <- c('ID', 'RS_perc')
   hydrography_shp$RS_perc <- perc_RS$RS_perc
+  
+  hydrography_shp <- hydrography_shp[, c("rchID","frmNode","toNode","nUp","headwaterFlag","strOrdr","lngth_m","slope","RS_perc","geometry")]
   
   return(hydrography_shp)
 }
