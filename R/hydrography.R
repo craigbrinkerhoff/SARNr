@@ -1,6 +1,8 @@
-# FUNCTIONS TO BUILD HYDROGRAPHY PRODUCT
-# winter 2022
-
+#########################
+## FUNCTIONS TO BUILD HYDROGRAPHY PRODUCT
+## Summer 2022
+## Craig Brinkerhoff
+##########################
 
 
 
@@ -20,7 +22,6 @@
 #' @import sf
 #' @import sfnetworks
 #' @import tidygraph
-#' @import hydrostreamer
 #'
 #' @return final actively-flowing hydrography
 #' 
@@ -29,7 +30,7 @@ sarn_hydrography <- function(trimmedNetwork, dem, riverMask, lengthThresh, print
   
   printOutput <- ifelse(printOutput == 'yes' || printOutput == 'Yes', 1, 0)
   
-  #CREATE NETWORK TOPOLOGY (ROUTING TABLE) USING SFNETWORKS PACKAGE
+  #CREATE NETWORK TOPOLOGY (ROUTING TABLE) USING SFNETWORKS
     #this also iteratively removes dangling segments shorter than the length threshold until non are left
   flag <- 1
   while(flag != 0){
@@ -60,26 +61,22 @@ sarn_hydrography <- function(trimmedNetwork, dem, riverMask, lengthThresh, print
       print(paste0('removed ', flag, ' artifical dangles'))
     }
   }
-
-  #ADD STREAM ORDER USING HYDROSTREAMER PACKAGE
-  so <- river_network(hydrography_shp, riverID = 'reachID')  %>%
-    river_hierarchy() %>%
-    as.data.frame() %>%
-    dplyr::select(c('reachID', 'STRAHLER'))
   
-  hydrography_shp <- left_join(hydrography_shp, so, by='reachID')
-  hydrography_shp$length_m <- as.numeric(st_length(hydrography_shp))
+  hydrography_shp$length_m <- as.numeric(st_length(hydrography_shp)) #don;t know what the length already in there is, but it might not be meters and might not be in the right projection, so we just do it ourselves here
   
-  hydrography_shp <- dplyr::select(hydrography_shp, c('from', 'to', 'reachID', 'STRAHLER', 'length_m', 'geometry'))
-  colnames(hydrography_shp) <- c('frmNode', 'toNode', 'rchID', 'strOrdr', 'lngth_m', 'geometry')
+  hydrography_shp <- dplyr::select(hydrography_shp, c('from', 'to', 'reachID', 'length_m', 'geometry'))
+  colnames(hydrography_shp) <- c('from', 'to', 'rchID', 'lngth_m', 'geometry')
   
   #ADD NUMBER UPSTREAM RIVERS
-  nup <- group_by(hydrography_shp, toNode) %>%
+  nup <- group_by(hydrography_shp, to) %>%
     summarise(nUp=n())
   nup <- as.data.frame(nup)
-  nup <- dplyr::select(nup, 'toNode', 'nUp')
-  colnames(nup) <- c('frmNode', 'nUp') #re-assign nUp to the next downstream reach
-  hydrography_shp <- left_join(hydrography_shp, nup, by='frmNode')
+  nup <- dplyr::select(nup, 'to', 'nUp')
+  colnames(nup) <- c('from', 'nUp') #re-assign nUp to the next downstream reach
+  hydrography_shp <- left_join(hydrography_shp, nup, by='from')
+  
+  #STRAHLER STREAM ORDER
+  hydrography_shp <- calcStrahlerOrder(hydrography_shp) #see src/utils.R
   
   #ADDITIONAL FLAGS
   hydrography_shp$headwaterFlag <- ifelse(is.na(hydrography_shp$nUp)==1, 1, 0)
@@ -89,7 +86,8 @@ sarn_hydrography <- function(trimmedNetwork, dem, riverMask, lengthThresh, print
 
   st_write(hydrography_shp, f, delete_dsn=TRUE, quiet = TRUE)
   hydrography_terra <- vect(f)
-   
+  
+  #standard method is max and min slope along reach to be robust against potential DEM errors
   max_elev <- extract(dem, hydrography_terra, fun=function(x){max(x, na.rm=T)})
   colnames(max_elev) <- c('row', 'max_elv_m')
   min_elev <- extract(dem, hydrography_terra, fun=function(x){min(x, na.rm=T)})
@@ -100,12 +98,12 @@ sarn_hydrography <- function(trimmedNetwork, dem, riverMask, lengthThresh, print
    
   hydrography_shp$slope <- (slopes$max_elv_m - slopes$min_elv_m) / hydrography_shp$lngth_m
    
-  #ADD PERCENT OF REACH REMOTELY SENSED (USING WATER MASK)
+  #ADD PERCENT OF REACH THAT IS REMOTELY SENSED (USING WATER MASK)
   perc_RS <- extract(riverMask, hydrography_terra, fun=function(x){mean(x, na.rm=T)}) #average of binary pixels will give a 'percent RS'
   colnames(perc_RS) <- c('ID', 'RS_perc')
   hydrography_shp$RS_perc <- perc_RS$RS_perc
   
-  hydrography_shp <- hydrography_shp[, c("rchID","frmNode","toNode","nUp","headwaterFlag","strOrdr","lngth_m","slope","RS_perc","geometry")]
+  hydrography_shp <- hydrography_shp[, c("rchID","from","to","nUp","headwaterFlag","STRAHLER","lngth_m","slope","RS_perc","geometry")]
   
   return(hydrography_shp)
 }

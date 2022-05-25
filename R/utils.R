@@ -1,5 +1,8 @@
-# UTILITY FUNCTIONS
-# Winter 2022
+#################################
+## UTILITY FUNCTIONS
+## Winter 2022
+## Craig Brinkerhoff
+##################################
 
 #' Spatial erase function
 #' 
@@ -69,4 +72,89 @@ sarn_classifyWater_unimodal <- function(img, dem, maxElev=4000) {
   img_fin[img_fin == 0] <- NA
   
   return(img_fin)
+}
+
+#' Calculate stream order along network
+#' 
+#' @note: this function was adapted (and simplified) from the hydrostreamer R package implementation of strahler stream order in R (https://github.com/mkkallio/hydrostreamer)
+#' 
+#' @name calcStrahlerOrder
+#'
+#' @param river: river networks as sf object
+#' 
+#' @return sf object river network, with stream order as an attribute
+calcStrahlerOrder <- function(river){
+  from <- river$from
+  to <- river$to
+  nUp <- river$nUp
+  
+  n_seg <- nrow(river)
+  strahler <- rep(1, n_seg) #inital estimate of stream order
+  rounds_with_no_edits <- 0
+  edits <- 1
+  
+  while (rounds_with_no_edits < 2) { #run until no longer edited
+    if (edits == 0) rounds_with_no_edits <- rounds_with_no_edits+1
+    if (rounds_with_no_edits == 2) break
+    edits <- 1
+    # run for every river segment
+    for (seg in 1:n_seg) {
+      n_sources <- length(which(to == from[seg]))
+      # check if the segment is headwaters (no inflowing segments)
+      if (n_sources == 0 && is.na(nUp[seg]) == 1) {
+        
+        #do nothing, leave as first order
+        
+      } else if (n_sources == 1 && is.na(nUp[seg]) != 1) {
+        # if there is a single upstream reach
+        #prev_seg <- from[seg]
+        row <- from[which(to == from[seg])]
+        
+        # if the current stream order DOES NOT EQUAL TO inflowing 
+        # stream order
+        if (!strahler[seg] == strahler[row]){ 
+          strahler[seg] <- strahler[row]
+          edits <- edits+1
+        }
+        
+      } else {
+        # if there are multiple inflowing reaches
+        prev_segs <- which(to == from[seg])
+        str <- strahler[which(to == from[seg])]
+        max_value <- max(str)
+        n_max_values <- table(str)[as.character(max_value)]
+        
+        if (n_max_values == 1) {
+          if (!strahler[seg] == max_value) {
+            strahler[seg] <- max(str)
+            edits <- edits+1
+          }
+        } else {
+          if (!strahler[seg] == max_value+1) {
+            strahler[seg] <- max(str)+1
+            edits <- edits+1
+          }
+        }
+        
+      }
+    }
+    edits <- edits-1
+    
+  }
+  
+  #add to river network
+  test <- any(names(river) == "STRAHLER")
+  if(test) {
+    river <- river[,-"STRAHLER"]
+    river <- tibble::add_column(river, 
+                                STRAHLER = strahler, 
+                                .before=length(names(river)))
+    message("Replacing the existing column 'STRAHLER'.")
+  } else {
+    river <- tibble::add_column(river, 
+                                STRAHLER = strahler, 
+                                .before=length(names(river)))
+  }
+  
+  return(river)
 }

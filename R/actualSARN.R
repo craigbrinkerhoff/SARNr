@@ -1,5 +1,8 @@
-#FUNCTIONS FOR SARNr
-#Winter 2022
+##############################
+## FUNCTIONS FOR SARNr
+## Winter 2022
+## Craig Brinkerhoff
+##############################
 
 
 #' SARN network joining

@@ -1,5 +1,8 @@
-# ERROR HANDLING AND OBJECT GENERATION FUNCTIONS
-# Winter 2022
+#####################################
+## ERROR HANDLING AND OBJECT GENERATION FUNCTIONS
+## Winter 2022
+## Craig Brinkerhoff
+###################################
 
 #' Make sarndata object
 #'

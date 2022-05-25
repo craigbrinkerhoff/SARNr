@@ -16,6 +16,8 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(SARNr)
+library(sf) #for vector processing
+library(terra) #for raster processing
 ```
 
 This vigentte will get you started extracting actively-flowing river networks from Planet imagery!
@@ -35,14 +37,7 @@ One can also generate their DEM river network in a GIS: to my knowledge there is
 - Convert this raster river network to vector
 
 # Workflow
-Below is an example code for generating an actively flowing drainage network given a DEM river network and an RS river network. The example uses a Planet 3m image from 10/09/2020 in the Nepalese Himalaya.
-
-Load in the required packages
-```R
-library(SARNr)
-library(sf) #for vector processing
-library(terra) #for raster processing
-```
+Below is an example code for generating an actively flowing drainage network given a DEM river network and a 3m Planet Labs satellite image from 10/09/2020 in the Nepalese Himalaya.
 
 Load in the necessary data
 ```R
@@ -52,7 +47,9 @@ dem_domain <- rast('data/dem_fin_20201009_045732_0f17.tif') #dem downscaled to 3
 image <- rast('data/PSScene4Band-20201009_045732_0f17.tif') #3m PlanetScope image
 ```
 
-Classify water within your image. You can do this using bespoke methods or one the function included here (see below). Here we use NDWI-NDVI to force as much spectral contrast between land and water as possible following  https://doi.org/10.3390/s18082580.
+Classify water within your image. You can do this using bespoke methods or one the function included here (see below). Here we use a bespoke combination of Rosgen unimodal thresholding (https://www.sciencedirect.com/science/article/pii/S0034425717301475) and a water classification method developed for Landsat in the Himalaya (https://doi.org/10.3390/s18082580).
+
+If you are going to make your own river masks, simply make sure the output is a `terra::spatRaster` object with river pixels coded as 1s and land pixels as NaN. `SARNr` will throw an error if this format is not followed.
 
 ```R
 #Rosgen's Unimodal thresholding approach applied to the spectral index (NDWI-NDVI)
@@ -60,9 +57,8 @@ rivnet_rs_rast <- sarn_classifyWater_unimodal(img = image,
                                      dem = dem_domain,
                                      maxElev = 4000) #water is ignored above this elevation (to remove snow/ice/glaciers)
 ```
-If you are going to make your own river masks, simply make sure the output is a `terra::spatRaster` object with river pixels coded as 1s and land pixels as NaN.
 
-Run the algorithm
+Now that you have a water mask, run the algorithm
 ```R
 #run SARNr
 data <- sarn_data(dem_network = rivnet_dem,
