@@ -87,7 +87,7 @@ checkRast <- function(raster) {
 #' @return null
 checkCat <- function(shapefile) {
   if("cat" %notin% colnames(shapefile)) {
-    shapefile$cat <- 1:nrow(chapefile)
+    shapefile$cat <- 1:nrow(shapefile)
   }
 }
 
