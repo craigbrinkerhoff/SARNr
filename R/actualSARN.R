@@ -75,6 +75,7 @@ sarn_joinNetworks <- function(data, bufferSize) {
 #' Iteratively trims river network to the actively-flowing network
 #' 
 #' @param networks: sarnnetwork object produced by sarn_joinNetworks()
+#' @param crs_code: epsg code for the projection you are using (for the trimed nodes)
 #' @param printOutput: Do you want the results of the iterative trimming to print to console? Default= Yes
 #' 
 #' @import sf
@@ -83,7 +84,7 @@ sarn_joinNetworks <- function(data, bufferSize) {
 #' @return sarnnetwork object with trimmed river network (output$trimmedNetwork)
 #'
 #' @export sarn_trimNetworks
-sarn_trimNetworks <- function(networks, printOutput="Yes") {
+sarn_trimNetworks <- function(networks, crs_code, printOutput="Yes") {
   print('Giving the river network a much needed hair cut!!')
   
   printOutput <- ifelse(printOutput == 'yes' || printOutput == 'Yes', 1, 0)
@@ -97,9 +98,9 @@ sarn_trimNetworks <- function(networks, printOutput="Yes") {
   RS_points1 <- st_line_sample(coincidentNetwork, sample = 0)
   RS_points2 <- st_line_sample(coincidentNetwork, sample = 1)
   
-  RS_points1 <- st_as_sfc(do.call(rbind,lapply(1:length(RS_points1),function(i){st_cast(RS_points1[i],"POINT")})), crs=3857)
-  RS_points2 <- st_as_sfc(do.call(rbind,lapply(1:length(RS_points2),function(i){st_cast(RS_points2[i],"POINT")})), crs=3857)
-  RS_points <- st_as_sfc(rbind(RS_points1, RS_points2), crs=3857) %>% st_sf %>% st_cast
+  RS_points1 <- st_as_sfc(do.call(rbind,lapply(1:length(RS_points1),function(i){st_cast(RS_points1[i],"POINT")})), crs=crs_code)
+  RS_points2 <- st_as_sfc(do.call(rbind,lapply(1:length(RS_points2),function(i){st_cast(RS_points2[i],"POINT")})), crs=crs_code)
+  RS_points <- st_as_sfc(rbind(RS_points1, RS_points2), crs=crs_code) %>% st_sf %>% st_cast
   
   #iteraively trim the network back until the RS end points are 1st order
   flag <- 1
@@ -109,13 +110,13 @@ sarn_trimNetworks <- function(networks, printOutput="Yes") {
     DEM_points_end <- st_line_sample(not_coincidentNetwork, sample=1)
     DEM_points_intermediate <- st_intersection(DEM_points_start, DEM_points_end)
     
-    DEM_points_intermediate <- st_as_sfc(do.call(rbind,lapply(1:length(DEM_points_intermediate),function(i){st_cast(DEM_points_intermediate[i],"POINT")})), crs=3857) %>% 
+    DEM_points_intermediate <- st_as_sfc(do.call(rbind,lapply(1:length(DEM_points_intermediate),function(i){st_cast(DEM_points_intermediate[i],"POINT")})), crs=crs_code) %>% 
       st_sf %>% 
       st_cast
-    DEM_points_start <- st_as_sfc(do.call(rbind,lapply(1:length(DEM_points_start),function(i){st_cast(DEM_points_start[i],"POINT")})), crs=3857) %>% 
+    DEM_points_start <- st_as_sfc(do.call(rbind,lapply(1:length(DEM_points_start),function(i){st_cast(DEM_points_start[i],"POINT")})), crs=crs_code) %>% 
       st_sf %>% 
       st_cast
-    DEM_points_end <- st_as_sfc(do.call(rbind,lapply(1:length(DEM_points_end),function(i){st_cast(DEM_points_end[i],"POINT")})), crs=3857) %>% 
+    DEM_points_end <- st_as_sfc(do.call(rbind,lapply(1:length(DEM_points_end),function(i){st_cast(DEM_points_end[i],"POINT")})), crs=crs_code) %>% 
       st_sf %>%
       st_cast
     DEM_points_bothEnds <- rbind(DEM_points_start, DEM_points_end)
