@@ -106,7 +106,7 @@ checkCat <- function(shapefile) {
 #' 
 #' @return NULL
 checkProj <- function(dem_network, rs_raster, dem_full){
-  dem <- as.character(crs(dem_network))
+  dem <- as.character(crs(dem_network, proj=TRUE))
   rast <- crs(rs_raster, proj=TRUE)
   rast_dem <- crs(dem_full, proj=TRUE)
   
