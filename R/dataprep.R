@@ -55,6 +55,8 @@ sarn_data <- function(dem_network, riverMask, dem) {
 #' @param shapefile: shapefile to be used in SARNr
 #' 
 #' @return NULL
+#' 
+#' @export
 checkShp <- function(shapefile) {
   if(class(shapefile)[1] != 'sf'){
     stop("All shapefiles must be sf objects!")
@@ -70,6 +72,8 @@ checkShp <- function(shapefile) {
 #' @param raster: raster to be used in SARNr
 #'
 #' @return NULL
+#' 
+#' @export
 checkRast <- function(raster) {
   if(class(raster)[1] != 'SpatRaster'){
     stop("All rasters must be Terra objects!")
@@ -82,9 +86,11 @@ checkRast <- function(raster) {
 #' 
 #' @name checkCat
 #' 
-#' @param cheapefile: shapefile to be used in SARNr
+#' @param shapefile: shapefile to be used in SARNr
 #'
 #' @return null
+#' 
+#' @export
 checkCat <- function(shapefile) {
   if("cat" %notin% colnames(shapefile)) {
     shapefile$cat <- 1:nrow(shapefile)
@@ -105,6 +111,8 @@ checkCat <- function(shapefile) {
 #' @param dem_full: raster dem to be used in SARNr
 #' 
 #' @return NULL
+#' 
+#' @export
 checkProj <- function(dem_network, rs_raster, dem_full){
   dem <- as.character(crs(dem_network, proj=TRUE))
   rast <- crs(rs_raster, proj=TRUE)
@@ -123,6 +131,8 @@ checkProj <- function(dem_network, rs_raster, dem_full){
 #' @param img: remote sensing image to be used in SARNr
 #' 
 #' @return NULL
+#' 
+#' @export
 checkRS <- function(img){
   bandNames <- names(img)
   
@@ -140,6 +150,8 @@ checkRS <- function(img){
 #' @param mask: raster river mask
 #' 
 #' @return NULL
+#' 
+#' @export
 checkMask <- function(mask){
   temp <- values(mask)[,1]
   if(any(is.nan(temp)==0 & temp != 1)){

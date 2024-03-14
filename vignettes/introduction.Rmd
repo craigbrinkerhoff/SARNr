@@ -65,10 +65,11 @@ data <- sarn_data(dem_network = rivnet_dem,
                   riverMask = rivnet_rs_rast,
                   dem = dem_domain) #create SARN object
 
-joinedNetwork <- sarn_joinNetworks(data = data, 
+joinedNetwork <- sarn_joinNetworks(data = data,
                                    bufferSize=5) #join DEM and RS networks
 
 trimmedNetwork <- sarn_trimNetworks(networks = joinedNetwork,
+                                    crs_code=,
                                     printOutput = 'Yes') #trim combined DEM/RS network
 
 fin <- sarn_hydrography(trimmedNetwork = trimmedNetwork$trimmedNetwork, 

@@ -16,6 +16,8 @@
 #' @import sf
 #' 
 #' @return result of erase function
+#'
+#' @export
 st_erase = function(x, y){
   return(st_difference(x, st_union(st_combine(y))))
 }
@@ -35,7 +37,7 @@ st_erase = function(x, y){
 #' 
 #' @return Binary river classification: 1 is water, 0 is land
 #' 
-#' @export sarn_classifyWater_unimodal
+#' @export
 sarn_classifyWater_unimodal <- function(img, dem, maxElev=4000) {
   #CHECK BAND NAMES
   checkRS(img)
@@ -75,21 +77,23 @@ sarn_classifyWater_unimodal <- function(img, dem, maxElev=4000) {
 }
 
 #' Calculate stream order along network
-#' 
-#' @note: this function was adapted (and simplified) from the hydrostreamer R package implementation of strahler stream order in R (https://github.com/mkkallio/hydrostreamer)
-#' 
+#'
+#' Given a sarn network, calculate the Strahler stream order. Note that this function was adapted (and simplified) from the hydrostreamer R package implementation of strahler stream order in R (https://github.com/mkkallio/hydrostreamer)
+#'
 #' @name calcStrahlerOrder
 #'
 #' @param river: river networks as sf object
 #' 
 #' @return sf object river network, with stream order as an attribute
+#' 
+#' @export calcStrahlerOrder
 calcStrahlerOrder <- function(river){
   from <- river$from
   to <- river$to
   nUp <- river$nUp
   
   n_seg <- nrow(river)
-  strahler <- rep(1, n_seg) #inital estimate of stream order
+  strahler <- rep(1, n_seg) #initial estimate of stream order
   rounds_with_no_edits <- 0
   edits <- 1
   
@@ -99,7 +103,9 @@ calcStrahlerOrder <- function(river){
     edits <- 1
     # run for every river segment
     for (seg in 1:n_seg) {
+      
       n_sources <- length(which(to == from[seg]))
+
       # check if the segment is headwaters (no inflowing segments)
       if (n_sources == 0 && is.na(nUp[seg]) == 1) {
         
@@ -109,10 +115,10 @@ calcStrahlerOrder <- function(river){
         # if there is a single upstream reach
         #prev_seg <- from[seg]
         row <- from[which(to == from[seg])]
-        
+
         # if the current stream order DOES NOT EQUAL TO inflowing 
         # stream order
-        if (!strahler[seg] == strahler[row]){ 
+        if ((!strahler[seg] == strahler[row]) & is.na(strahler[row])==0){ #from IDs could be referring to removed dangles (and thus are NA, so handle that)
           strahler[seg] <- strahler[row]
           edits <- edits+1
         }

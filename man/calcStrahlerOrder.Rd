@@ -13,8 +13,5 @@ calcStrahlerOrder(river)
 sf object river network, with stream order as an attribute
 }
 \description{
-Calculate stream order along network
-}
-\note{
-: this function was adapted (and simplified) from the hydrostreamer R package implementation of strahler stream order in R (https://github.com/mkkallio/hydrostreamer)
+Given a sarn network, calculate the Strahler stream order. Note that this function was adapted (and simplified) from the hydrostreamer R package implementation of strahler stream order in R (https://github.com/mkkallio/hydrostreamer)
 }

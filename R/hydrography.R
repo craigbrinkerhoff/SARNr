@@ -8,7 +8,7 @@
 
 #' Builds actively flowing hydrography from SARN
 #' 
-#' Builds a routing framework and calculates common river network parameters for the river network.
+#' Builds a routing framework and calculates common river network parameters for the river network. Relies on sfnetworks package to build topologically connected networks
 #' 
 #' @name sarn_hydrography
 #' 
@@ -27,7 +27,7 @@
 #' 
 #' @export sarn_hydrography
 sarn_hydrography <- function(trimmedNetwork, dem, riverMask, lengthThresh, printOutput='Yes') {
-  
+
   printOutput <- ifelse(printOutput == 'yes' || printOutput == 'Yes', 1, 0)
   
   #CREATE NETWORK TOPOLOGY (ROUTING TABLE) USING SFNETWORKS
@@ -36,8 +36,10 @@ sarn_hydrography <- function(trimmedNetwork, dem, riverMask, lengthThresh, print
   while(flag != 0){
     hydrography <- as_sfnetwork(trimmedNetwork)
     smoothed = convert(hydrography, to_spatial_smooth) #SMOOTH 'PSEUDO-NODES', I.E. DISSOLVE ALL RS/DEM SUB-REACHES WITHIN A TOPOLOGICALLY-DEFINED REACH
-    hydrography_shp <- smoothed %>%
+      # Follows https://luukvdmeer.github.io/sfnetworks/articles/sfn02_preprocess_clean.html#smooth-pseudo-nodes
+    hydrography_shp <- smoothed %>% #implicitly gets overwritten in the while loop
       activate("edges") %>%
+      filter() %>%
       st_as_sf() %>%
       dplyr::select(-c('reachID', 'geometry'))
     hydrography_shp$reachID <- 1:nrow(hydrography_shp)
@@ -50,8 +52,9 @@ sarn_hydrography <- function(trimmedNetwork, dem, riverMask, lengthThresh, print
     colnames(nup) <- c('from', 'nUp') #re-assign nUp to the next downstream reach
     hydrography_shp <- left_join(hydrography_shp, nup, by='from')
     
+    #REMOVE ARTIFICIAL DANGLES, i.e. teeny tiny reaches with nothing upstream
     hydrography_shp$length <- as.numeric(st_length(hydrography_shp))
-    eraseRivers <- hydrography_shp[hydrography_shp$length < lengthThresh & is.na(hydrography_shp$nUp) ==1 ,]
+    eraseRivers <- hydrography_shp[hydrography_shp$length < lengthThresh & is.na(hydrography_shp$nUp) ==1 ,] #the dangles to remove, defined operationally by a threshold
     trimmedNetwork <- filter(hydrography_shp, reachID %notin% eraseRivers$reachID)
     trimmedNetwork <- dplyr::select(trimmedNetwork, c('reachID', 'geometry'))
     
@@ -60,13 +63,14 @@ sarn_hydrography <- function(trimmedNetwork, dem, riverMask, lengthThresh, print
     if(printOutput == 1){
       print(paste0('removed ', flag, ' artifical dangles'))
     }
+
   }
-  
-  hydrography_shp$length_m <- as.numeric(st_length(hydrography_shp)) #don;t know what the length already in there is, but it might not be meters and might not be in the right projection, so we just do it ourselves here
-  
-  hydrography_shp <- dplyr::select(hydrography_shp, c('from', 'to', 'reachID', 'length_m', 'geometry'))
+
+  hydrography_shp$length_m <- as.numeric(st_length(hydrography_shp)) #don't know what the length already in there is, but it might not be meters and might not be in the right projection, so we just do it ourselves here
+
+  hydrography_shp <- dplyr::select(hydrography_shp, c('from', 'to', 'reachID', 'length_m','geometry'))
   colnames(hydrography_shp) <- c('from', 'to', 'rchID', 'lngth_m', 'geometry')
-  
+
   #ADD NUMBER UPSTREAM RIVERS
   nup <- group_by(hydrography_shp, to) %>%
     summarise(nUp=n())
@@ -74,25 +78,25 @@ sarn_hydrography <- function(trimmedNetwork, dem, riverMask, lengthThresh, print
   nup <- dplyr::select(nup, 'to', 'nUp')
   colnames(nup) <- c('from', 'nUp') #re-assign nUp to the next downstream reach
   hydrography_shp <- left_join(hydrography_shp, nup, by='from')
-  
+
   #STRAHLER STREAM ORDER
   hydrography_shp <- calcStrahlerOrder(hydrography_shp) #see src/utils.R
-  
+
   #ADDITIONAL FLAGS
   hydrography_shp$headwaterFlag <- ifelse(is.na(hydrography_shp$nUp)==1, 1, 0)
-  
+  return(hydrography_shp)
   #ADD REACH SLOPE (must be done using terra so need to write to temp file, then read back in as a terra object...)
   f <- file.path(tempdir(), "R_SARN_temp.shp")
-
+  
   st_write(hydrography_shp, f, delete_dsn=TRUE, quiet = TRUE)
   hydrography_terra <- vect(f)
-  
+
   #standard method is max and min slope along reach to be robust against potential DEM errors
-  max_elev <- extract(dem, hydrography_terra, fun=function(x){max(x, na.rm=T)})
+  max_elev <- terra::extract(dem, hydrography_terra, fun=function(x){max(x, na.rm=T)})
   colnames(max_elev) <- c('row', 'max_elv_m')
-  min_elev <- extract(dem, hydrography_terra, fun=function(x){min(x, na.rm=T)})
+  min_elev <- terra::extract(dem, hydrography_terra, fun=function(x){min(x, na.rm=T)})
   colnames(min_elev) <- c('row', 'min_elv_m')
-   
+
   slopes <- left_join(max_elev, min_elev, by='row') %>%
    dplyr::select(!c('row'))
    

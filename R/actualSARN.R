@@ -26,7 +26,7 @@ sarn_joinNetworks <- function(data, bufferSize) {
   rivnet_dem_buf <- st_buffer(data$dem_network, dist=bufferSize, endCapStyle='ROUND')
   #rivnet_rs <- st_collection_extract(st_intersection(data$rs_network, rivnet_dem_buf), type='LINESTRING')
   
-  #SNAP DEM TO RIVERS
+  #SNAP DEM TO RIVERS (used in orig. SARN algorithm but not used here)
   # This is necessary to that DEM river pixels at now adjacent to RS rive r pixels when we do raster algebra
 #  rivnet_dem_snap <- st_snap(data$dem_network, data$rs_network, bufferSize)
 #  rivnet_dem_snap_buf <- st_buffer(rivnet_dem_snap, dist=bufferSize, endCapStyle = 'ROUND')
@@ -75,7 +75,7 @@ sarn_joinNetworks <- function(data, bufferSize) {
 #' Iteratively trims river network to the actively-flowing network
 #' 
 #' @param networks: sarnnetwork object produced by sarn_joinNetworks()
-#' @param crs_code: epsg code for the projection you are using (for the trimed nodes)
+#' @param crs_code: epsg code for the projection you are using (for the trimmed nodes)
 #' @param printOutput: Do you want the results of the iterative trimming to print to console? Default= Yes
 #' 
 #' @import sf
@@ -92,7 +92,7 @@ sarn_trimNetworks <- function(networks, crs_code, printOutput="Yes") {
   #use temporary networks to do the iterative trimming
   coincidentNetwork <- networks$coincidentNetwork_init
   not_coincidentNetwork <- networks$not_coincidentNetwork_init
-  
+
   #TRIM NETWORK USING NODE TOPOLOGY
   #Identify initial RS end points
   RS_points1 <- st_line_sample(coincidentNetwork, sample = 0)
@@ -100,9 +100,11 @@ sarn_trimNetworks <- function(networks, crs_code, printOutput="Yes") {
   
   RS_points1 <- st_as_sfc(do.call(rbind,lapply(1:length(RS_points1),function(i){st_cast(RS_points1[i],"POINT")})), crs=crs_code)
   RS_points2 <- st_as_sfc(do.call(rbind,lapply(1:length(RS_points2),function(i){st_cast(RS_points2[i],"POINT")})), crs=crs_code)
-  RS_points <- st_as_sfc(rbind(RS_points1, RS_points2), crs=crs_code) %>% st_sf %>% st_cast
+  RS_points <- st_as_sfc(rbind(RS_points1, RS_points2), crs=crs_code) %>% 
+    st_sf %>% 
+    st_cast
   
-  #iteraively trim the network back until the RS end points are 1st order
+  #iteratively trim the network back until the RS end points are 1st order
   flag <- 1
   while (flag != 0) {
     #get DEM reach nodes (terminal start nodes, terminal end nodes, and intermediate nodes which are those that are simultaneously start/end nodes)
@@ -143,10 +145,9 @@ sarn_trimNetworks <- function(networks, crs_code, printOutput="Yes") {
   not_coincidentNetwork$type <- 0 #DEM
   
   #MERGE COINCIDENT AND NON-COINCIDENT NETWORKS INTO SINGLE HYDROGRAPHY PRODUCT
-  # networks$coincidentNetwork$type <- 1 #RS
-  # networks$not_coincidentNetwork$type <- 0 #DEM
   rivnet_fin <- rbind(coincidentNetwork, not_coincidentNetwork)
   
+  #FINALIZE
   networks$trimmedNetwork_fin <- rivnet_fin
   networks$trimmedFlag <- 'Yes'
   

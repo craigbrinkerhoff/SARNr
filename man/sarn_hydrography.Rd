@@ -27,5 +27,5 @@ sarn_hydrography(
 final actively-flowing hydrography
 }
 \description{
-Builds a routing framework and calculates common river network parameters for the river network.
+Builds a routing framework and calculates common river network parameters for the river network. Relies on sfnetworks package to build topologically connected networks
 }

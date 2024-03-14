@@ -9,7 +9,7 @@ Authors@R:
            role = c("aut", "cre"),
            email = "cbrinkerhoff@umass.edu",
            comment = c(ORCID = "0000-0001-6701-4835"))
-Description: An adapted version of the SARN algorithm, written in an open-source language and setup for any resolution imagery
+Description: An adapted version of the SARN algorithm (Lu et al., 2020), written in an open-source language and setup for any resolution imagery.
 Depends: 
     R (>= 3.6.0),
 Imports:
@@ -28,5 +28,5 @@ Suggests:
     rmarkdown,
     testthat (>= 3.0.0)
 VignetteBuilder: knitr
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
 Config/testthat/edition: 3

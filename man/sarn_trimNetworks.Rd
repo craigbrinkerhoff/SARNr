@@ -4,10 +4,12 @@
 \alias{sarn_trimNetworks}
 \title{SARN network clipping}
 \usage{
-sarn_trimNetworks(networks, printOutput = "Yes")
+sarn_trimNetworks(networks, crs_code, printOutput = "Yes")
 }
 \arguments{
 \item{networks:}{sarnnetwork object produced by sarn_joinNetworks()}
+
+\item{crs_code:}{epsg code for the projection you are using (for the trimmed nodes)}
 
 \item{printOutput:}{Do you want the results of the iterative trimming to print to console? Default= Yes}
 }

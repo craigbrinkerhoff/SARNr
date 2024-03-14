@@ -7,7 +7,7 @@
 checkCat(shapefile)
 }
 \arguments{
-\item{cheapefile:}{shapefile to be used in SARNr}
+\item{shapefile:}{shapefile to be used in SARNr}
 }
 \value{
 null
